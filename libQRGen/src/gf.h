@@ -85,25 +85,25 @@ GF256<RP>::Element::Element(uint8_t value) : _value(value) {}
 
 
 template <GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::Element::operator+(const Element &other) const {
+GF256<RP>::Element GF256<RP>::Element::operator+(const Element &other) const {
     return _value ^ other._value;
 }
 
 
 template <GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::Element::operator-(const Element &other) const {
+GF256<RP>::Element GF256<RP>::Element::operator-(const Element &other) const {
     return _value ^ other._value;
 }
 
 
 template <GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::Element::operator*(const Element &other) const {
+GF256<RP>::Element GF256<RP>::Element::operator*(const Element &other) const {
     return mulLookup(_value, other._value);
 }
 
 
 template <GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::Element::operator/(const Element &other) const {
+GF256<RP>::Element GF256<RP>::Element::operator/(const Element &other) const {
     Element inverse = alpha(-_alphaTables.log[other._value]);
     return *this * inverse;
 }
@@ -128,7 +128,7 @@ GF256<RP>::Element::operator int() const {
 
 
 template <GF256_RP RP>
-typename GF256<RP>::AlphaTables GF256<RP>::generateAlphaTables() {
+GF256<RP>::AlphaTables GF256<RP>::generateAlphaTables() {
     // This map contains all reducing polynomials over GF(256) and the corresponding
     // smallest primitive elements.
     static const std::map<uint8_t, uint8_t> GF256RPs{
@@ -154,19 +154,19 @@ typename GF256<RP>::AlphaTables GF256<RP>::generateAlphaTables() {
 
 
 template<GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::zero() {
+GF256<RP>::Element GF256<RP>::zero() {
     return 0;
 }
 
 
 template<GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::one() {
+GF256<RP>::Element GF256<RP>::one() {
     return 1;
 }
 
 
 template<GF256_RP RP>
-typename GF256<RP>::Element GF256<RP>::alpha(int n) {
+GF256<RP>::Element GF256<RP>::alpha(int n) {
     return _alphaTables.pow[n % 255 + (n >= 0 ? 0 : 255)];
 }
 
@@ -228,6 +228,6 @@ uint8_t GF256<RP>::mulLookup(uint8_t a, uint8_t b) {
 
 
 template <GF256_RP RP>
-const typename GF256<RP>::AlphaTables GF256<RP>::_alphaTables{GF256<RP>::generateAlphaTables()};
+const GF256<RP>::AlphaTables GF256<RP>::_alphaTables{GF256<RP>::generateAlphaTables()};
 
 #endif // GF_H

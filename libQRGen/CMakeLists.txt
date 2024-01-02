@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.12)
 
 project(libQRGen LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(libQRGen SHARED)
 target_sources(libQRGen
     PRIVATE
+    src/ecccalculator.cpp
+    src/ecccalculator.h
     src/gf.h
     src/polynomial.cpp
     src/polynomial.h
@@ -32,6 +34,7 @@ FetchContent_MakeAvailable(googletest)
 get_target_property(libQRGen_SOURCES libQRGen SOURCES)
 add_executable(libQRGenTest
     ${libQRGen_SOURCES}
+    test/test_ecccalculator.cpp
     test/test_gf.cpp
     test/test_polynomial.cpp
 )
