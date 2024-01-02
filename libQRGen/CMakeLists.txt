@@ -5,14 +5,19 @@ project(libQRGen LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_library(libQRGen SHARED
-    src/gf.h)
+add_library(libQRGen SHARED)
+target_sources(libQRGen
+    PRIVATE
+    src/gf.h
+    src/polynomial.cpp
+    src/polynomial.h
+)
 
 set_target_properties(libQRGen PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(libQRGen icuuc)
 
 
-# Test Related
+##### Unit Testing #####
 
 include(FetchContent)
 FetchContent_Declare(
@@ -24,8 +29,11 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+get_target_property(libQRGen_SOURCES libQRGen SOURCES)
 add_executable(libQRGenTest
+    ${libQRGen_SOURCES}
     test/test_gf.cpp
+    test/test_polynomial.cpp
 )
 
 target_link_libraries(
