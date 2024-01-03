@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(libQRGen SHARED)
 target_sources(libQRGen
     PRIVATE
+    src/data.cpp
+    src/data.h
     src/ecccalculator.cpp
     src/ecccalculator.h
     src/gf.h
@@ -29,11 +31,13 @@ FetchContent_Declare(
 
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 get_target_property(libQRGen_SOURCES libQRGen SOURCES)
 add_executable(libQRGenTest
     ${libQRGen_SOURCES}
+    test/test_data.cpp
     test/test_ecccalculator.cpp
     test/test_gf.cpp
     test/test_polynomial.cpp
