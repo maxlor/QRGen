@@ -22,6 +22,9 @@ target_sources(libQRGen
     src/gf.h
     src/polynomial.cpp
     src/polynomial.h
+    src/qr.h
+    src/symbol.cpp
+    src/symbol.h
 )
 
 target_link_libraries(libQRGen icuuc)
@@ -47,6 +50,7 @@ add_executable(libQRGenTest
     test/test_ecccalculator.cpp
     test/test_gf.cpp
     test/test_polynomial.cpp
+    test/test_symbol.cpp
 )
 
 target_link_libraries(
