@@ -9,6 +9,7 @@
 #include <array>
 #include <vector>
 #include "../src/qr.h"
+#define private public
 #include "../src/symbol.h"
 
 
@@ -132,4 +133,22 @@ TEST(Symbol, formatInformation) {
             EXPECT_EQ(f2, expectedFormats[counter]);
         }
     }
+}
+
+
+TEST(Symbol, maskEvaluation) {
+    Symbol symbol(1);
+    
+    unsigned int actualAdjacentSameColor = symbol.evaluateAdjacentSameColor();
+    unsigned int actualSameColorBlocks = symbol.evaluateSameColorBlocks();
+    unsigned int actual11311Pattern = symbol.evaluate11311Pattern();
+    unsigned int actualDarkProportion = symbol.evaluateDarkProportion();
+    unsigned int actualTotal = symbol.evaluate();
+    
+    EXPECT_EQ(actualTotal, actualAdjacentSameColor + actualSameColorBlocks
+                               + actual11311Pattern + actualDarkProportion);
+    EXPECT_EQ(566u, actualAdjacentSameColor);
+    EXPECT_EQ(711u, actualSameColorBlocks);
+    EXPECT_EQ(720u, actual11311Pattern);
+    EXPECT_EQ(50u, actualDarkProportion);
 }

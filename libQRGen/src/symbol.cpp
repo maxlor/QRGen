@@ -7,13 +7,10 @@
 
 #include "symbol.h"
 #include <cassert>
-#include <cmath>
 #include <functional>
-#include <iostream>
 #include <limits>
 #include <vector>
 #include "polynomial.h"
-#include "util.h"
 
 using namespace std;
 
@@ -59,6 +56,18 @@ static const vector<uint8_t> positions[40] {
     {6, 32, 58, 84, 110, 136, 162},
     {6, 26, 54, 82, 110, 138, 166},
     {6, 30, 58, 86, 114, 142, 170},
+};
+
+
+static const array<function<bool(size_t, size_t)>, 8> maskFun = {
+    [](size_t j, size_t i) -> bool { return (i + j) % 2 == 0; },
+    [](size_t j, size_t i) -> bool { (void)j; return i % 2 == 0; },
+    [](size_t j, size_t i) -> bool { (void)i; return j % 3 == 0; },
+    [](size_t j, size_t i) -> bool { return (i + j) % 3 == 0; },
+    [](size_t j, size_t i) -> bool { return (i / 2 + j / 3) % 2 == 0; },
+    [](size_t j, size_t i) -> bool { return i * j % 2 + i * j % 3 == 0; },
+    [](size_t j, size_t i) -> bool { return (i * j % 2 + i * j % 3) % 2 == 0; },
+    [](size_t j, size_t i) -> bool { return ((i + j) % 2 + i * j % 3) % 2 == 0; }
 };
 
 
@@ -132,17 +141,6 @@ void Symbol::setData(const std::vector<uint8_t> &data, QR::ErrorCorrection ec, u
 }
 
 
-#ifndef NDEBUG
-bool Symbol::test() {
-    bool result = true;
-    result |= testFormatInformation();
-    result |= testEvaluation();
-
-    return result;
-}
-#endif
-
-
 void Symbol::drawAlignmentPatterns() {
     assert(_size != 0);
     
@@ -164,17 +162,6 @@ void Symbol::drawAlignmentPatterns() {
 
 
 void Symbol::drawCodewords(const std::vector<uint8_t> &data, uint8_t mask) {
-    static const array<function<bool(size_t, size_t)>, 8> maskFun = {
-        [](size_t j, size_t i) -> bool { return (i + j) % 2 == 0; },
-        [](size_t j, size_t i) -> bool { (void)j; return i % 2 == 0; },
-        [](size_t j, size_t i) -> bool { (void)i; return j % 3 == 0; },
-        [](size_t j, size_t i) -> bool { return (i + j) % 3 == 0; },
-        [](size_t j, size_t i) -> bool { return (i / 2 + j / 3) % 2 == 0; },
-        [](size_t j, size_t i) -> bool { return i * j % 2 + i * j % 3 == 0; },
-        [](size_t j, size_t i) -> bool { return (i * j % 2 + i * j % 3) % 2 == 0; },
-        [](size_t j, size_t i) -> bool { return ((i + j) % 2 + i * j % 3) % 2 == 0; }
-    };
-
     Position position(startPosition());
     for (uint8_t codeword : data) {
         for (int bit = 7; bit >= 0; --bit) {
@@ -433,8 +420,8 @@ unsigned int Symbol::evaluate11311Pattern() const {
 
 unsigned int Symbol::evaluateDarkProportion() const {
     static constexpr unsigned int N4 = 10;
-
-    const size_t darkCount = count_if(_pixels.begin(), _pixels.end(), identityFun<bool>);
+    
+    const size_t darkCount = count_if(_pixels.begin(), _pixels.end(), std::identity());
     int darkProportion = 20 * darkCount / (_size * _size) - 10;
     if (2 * darkCount < (_size * _size)) { darkProportion += 1; }
     return abs(darkProportion) * N4;
@@ -566,57 +553,6 @@ uint_fast16_t Symbol::formatInformation(uint8_t mask, QR::ErrorCorrection ec) {
     result ^= xorMask;
     return result;
 }
-
-
-#ifndef NDEBUG
-bool Symbol::testFormatInformation() {
-    // These values are from Table C.1 in ISO/IEC 18004:2015
-    constexpr array<uint16_t, 32> expectedFormats = {
-        0x5412, 0x5125, 0x5E7C, 0x5B4B, 0x45F9, 0x40CE, 0x4F97, 0x4AA0,
-        0x77C4, 0x72F3, 0x7DAA, 0x789D, 0x662F, 0x6318, 0x6C41, 0x6976,
-        0x1689, 0x13BE, 0x1CE7, 0x19D0, 0x0762, 0x0255, 0x0D0C, 0x083B,
-        0x355F, 0x3068, 0x3F31, 0x3A06, 0x24B4, 0x2183, 0x2EDA, 0x2BED,
-    };
-
-    using EC = QR::ErrorCorrection;
-
-    bool result = true;
-
-    size_t counter = 0;
-    // the order is intentionally M-L-H-Q, see ISO/IEC 18004:2015 table 12
-    for (EC ec : { EC::M, EC::L, EC::H, EC::Q }) {
-        for (uint8_t mask = 0; mask < 8; ++mask, ++counter) {
-            uint16_t actual = formatInformation(mask, ec);
-            uint16_t expected = expectedFormats[counter];
-            result |= testEqual(expected, actual);
-        }
-    }
-
-    return result;
-}
-
-
-bool Symbol::testEvaluation() {
-    Symbol symbol(1);
-
-    unsigned int actualAdjacentSameColor = symbol.evaluateAdjacentSameColor();
-    unsigned int actualSameColorBlocks = symbol.evaluateSameColorBlocks();
-    unsigned int actual11311Pattern = symbol.evaluate11311Pattern();
-    unsigned int actualDarkProportion = symbol.evaluateDarkProportion();
-    unsigned int actualTotal = symbol.evaluate();
-
-    bool result = true;
-
-    result |= testEqual(actualTotal, actualAdjacentSameColor + actualSameColorBlocks
-                                         + actual11311Pattern + actualDarkProportion);
-    result |= testEqual(566u, actualAdjacentSameColor);
-    result |= testEqual(711u, actualSameColorBlocks);
-    result |= testEqual(720u, actual11311Pattern);
-    result |= testEqual(50u, actualDarkProportion);
-
-    return result;
-}
-#endif // NDEBUG
 
 
 bool Symbol::Position::valid() const {

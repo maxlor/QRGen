@@ -51,10 +51,6 @@ public:
     
     void highlightCodeword(size_t codewordNo, uint32_t highlight);
     void setData(const std::vector<uint8_t> &data, QR::ErrorCorrection ec, uint8_t mask = 255);
-
-#ifndef NDEBUG
-    static bool test();
-#endif
     
 private:
     struct Position {
@@ -89,10 +85,6 @@ private:
     Position startPosition() const;
 
     static uint_fast16_t formatInformation(uint8_t mask, QR::ErrorCorrection ec);
-#ifndef NDEBUG
-    static bool testFormatInformation();
-    static bool testEvaluation();
-#endif
     
     const int _version;
     const int _size;
