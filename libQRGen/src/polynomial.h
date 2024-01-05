@@ -36,6 +36,8 @@ public:
     Polynomial operator%(const Polynomial &other) const;
     bool operator==(const Polynomial &other) const;
     
+    unsigned int order() const; ///< The order of the polynomial.
+    
     /**
      * Returns the a-values in the same format as used for the
      * argument in ::Polynomial(unsigned int).

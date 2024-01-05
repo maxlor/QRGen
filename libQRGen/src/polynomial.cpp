@@ -24,9 +24,9 @@ Polynomial Polynomial::operator-(const Polynomial &other) const {
 
 
 Polynomial Polynomial::operator*(const Polynomial &other) const {
-    unsigned int result = 0;
-    unsigned int a = this->_p;
-    unsigned int b = other._p;
+    uint32_t result = 0;
+    uint32_t a = this->_p;
+    uint32_t b = other._p;
     for (size_t i = 0; i <= sizeof(typeof(_p)) * 8; ++i) {
         result ^= -(b & 1) & a;
         a <<= 1;
@@ -37,18 +37,19 @@ Polynomial Polynomial::operator*(const Polynomial &other) const {
 
 
 Polynomial Polynomial::operator%(const Polynomial &other) const {
-    unsigned int a = this->_p;
-    unsigned int b = other._p;
-
-    const int highestDivisorBit = other.highestBit();
-    if (highestDivisorBit == -1) {
+    if (other._p == 0) {
         assert(false);
         return Polynomial{0};
     }
+    
+    uint32_t a = this->_p;
+    const uint32_t &b = other._p;
+    
+    const int divisorOrder = other.order();
 
-    for (int i = 8 * sizeof(decltype(_p)) - 1; i >= highestDivisorBit; --i) {
-        if ((a & (1 << i)) != 0) {
-            a ^= b << (i - highestDivisorBit);
+    for (int i = 31; i >= divisorOrder; --i) {
+        if ((a & (uint32_t{1} << i)) != 0) {
+            a ^= b << (i - divisorOrder);
         }
     }
 
@@ -61,17 +62,16 @@ bool Polynomial::operator==(const Polynomial &other) const {
 }
 
 
-uint32_t Polynomial::value() const {
-    return _p;
-}
-
-
-int Polynomial::highestBit() const {
-    int i;
-    for (i = 0; (1 << i) != 0; ++i) {
-        if (_p < (1 << i)) {
+unsigned int Polynomial::order() const {
+    for (unsigned int i = 1; i < 32; ++i) {
+        if (_p < (uint32_t{1} << i)) {
             return i - 1;
         }
     }
-    return i - 1;
+    return 31;
+}
+
+
+uint32_t Polynomial::value() const {
+    return _p;
 }
