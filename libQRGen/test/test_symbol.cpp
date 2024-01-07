@@ -8,7 +8,7 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <vector>
-#include "../src/qr.h"
+#include "qrgen.h"
 #define private public
 #include "../src/symbol.h"
 

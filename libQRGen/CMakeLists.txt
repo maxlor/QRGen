@@ -15,6 +15,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(libQRGen SHARED)
 target_sources(libQRGen
     PRIVATE
+    include/qrgen.h
     src/data.cpp
     src/data.h
     src/ecccalculator.cpp
@@ -22,12 +23,16 @@ target_sources(libQRGen
     src/gf.h
     src/polynomial.cpp
     src/polynomial.h
-    src/qr.h
     src/symbol.cpp
     src/symbol.h
 )
 
-target_link_libraries(libQRGen icuuc)
+target_include_directories(libQRGen PUBLIC
+    include
+)
+target_link_libraries(libQRGen
+    icuuc
+)
 
 
 ##### Unit Testing #####
@@ -50,11 +55,13 @@ add_executable(libQRGenTest
     test/test_ecccalculator.cpp
     test/test_gf.cpp
     test/test_polynomial.cpp
-    test/test_symbol.cpp
+    test/test_symbol.cpp    
 )
 
-target_link_libraries(
-    libQRGenTest
+target_include_directories(libQRGenTest PRIVATE
+    include
+)
+target_link_libraries(libQRGenTest
     GTest::gtest_main
 )
 

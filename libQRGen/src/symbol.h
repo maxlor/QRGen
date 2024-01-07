@@ -11,7 +11,7 @@
 #include <array>
 #include <cstdint>
 #include <vector>
-#include "qr.h"
+#include "qrgen.h"
 
 
 /**
