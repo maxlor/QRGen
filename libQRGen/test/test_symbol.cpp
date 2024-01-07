@@ -101,7 +101,7 @@ TEST(Symbol, formatInformation) {
         0x355F, 0x3068, 0x3F31, 0x3A06, 0x24B4, 0x2183, 0x2EDA, 0x2BED,
     };
     
-    using EC = QR::ErrorCorrection;
+    using EC = QRGen::ErrorCorrection;
     
     size_t counter = 0;
     // the order is intentionally M-L-H-Q, see ISO/IEC 18004:2015 table 12
