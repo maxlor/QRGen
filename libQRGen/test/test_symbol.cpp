@@ -101,11 +101,9 @@ TEST(Symbol, formatInformation) {
         0x355F, 0x3068, 0x3F31, 0x3A06, 0x24B4, 0x2183, 0x2EDA, 0x2BED,
     };
     
-    using EC = QRGen::ErrorCorrection;
-    
     size_t counter = 0;
     // the order is intentionally M-L-H-Q, see ISO/IEC 18004:2015 table 12
-    for (EC ec : { EC::M, EC::L, EC::H, EC::Q }) {
+    for (QRGen_ErrorCorrection ec : { QRGen_EC_M, QRGen_EC_L, QRGen_EC_H, QRGen_EC_Q }) {
         for (uint8_t mask = 0; mask < 8; ++mask, ++counter) {
             Symbol symbol(1);
             symbol.setData({0}, ec, mask);

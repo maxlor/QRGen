@@ -18,7 +18,6 @@
 
 using namespace std;
 using namespace std::placeholders;
-using namespace QRGen;
 
 
 static bool containsKey(const unordered_map<char32_t, uint8_t> map, char32_t key);
@@ -123,7 +122,7 @@ const array<array<array<array<uint16_t, 3>, 2>, 4>, 40> QR::ecBlocks {{
 }};
 
 
-Symbol QR::encode(u16string_view data, ErrorCorrection ec, uint8_t version, uint8_t mask) {
+Symbol QR::encode(u16string_view data, QRGen_ErrorCorrection ec, uint8_t version, uint8_t mask) {
     assert(version <= 40);
     assert(mask == 255 || mask < 8);
     EncodeResult segmentResult = encodeSegment(data, ec);
@@ -148,7 +147,7 @@ Symbol QR::encode(u16string_view data, ErrorCorrection ec, uint8_t version, uint
 }
 
 
-QR::EncodeResult QR::encodeSegment(std::u16string_view data, ErrorCorrection ec) {
+QR::EncodeResult QR::encodeSegment(std::u16string_view data, QRGen_ErrorCorrection ec) {
     static const EncodeResult failure { false, {}, Mode::terminator, 0 };
     EncodeResult contentResult = encodeContent(data);
     if (!contentResult.success) { return failure; }
@@ -216,17 +215,13 @@ QR::EncodeResult QR::encodeContent(u16string_view data) {
         return failure;
     }
     
-    const bool isNumeric = all_of(data.begin(), data.end(), &QR::isNumeric);
-    const bool isAlphanumeric = isNumeric ||
-        all_of(data.begin(), data.end(), bind(containsKey, alphaNumericCharacters, _1));
-    const bool isEightbit = isAlphanumeric ||
-        all_of(data.begin(), data.end(), bind(containsKey, ISO8859_1, _1));
+    const bool isEightbit =  all_of(data.begin(), data.end(), bind(containsKey, ISO8859_1, _1));
     const bool isKanji = false;
     (void)isKanji; // TODO
     
-    if (isNumeric) {
+    if (isNumeric(data)) {
         return encodeNumeric(data);
-    } else if (isAlphanumeric) {
+    } else if (isAlphaNumeric(data)) {
         return encodeAlphanumeric(data);
     } else if (isEightbit) {
         return encodeEightbit(data);
@@ -237,7 +232,7 @@ QR::EncodeResult QR::encodeContent(u16string_view data) {
 }
 
 
-vector<uint8_t> QR::finalSequence(Data &bits, uint8_t version, ErrorCorrection ec) {
+vector<uint8_t> QR::finalSequence(Data &bits, uint8_t version, QRGen_ErrorCorrection ec) {
     size_t offset = 0;
     vector<vector<uint8_t>> dataCodewordBlocks;
     vector<vector<uint8_t>> ecCodewordBlocks;
@@ -284,6 +279,21 @@ bool QR::isNumeric(char16_t c) {
 }
 
 
+bool QR::isNumeric(std::u16string_view s) {
+    return all_of(s.begin(), s.end(), static_cast<bool(*)(char16_t)>(&QR::isNumeric));
+}
+
+
+bool QR::isAlphaNumeric(char16_t c) {
+    return alphaNumericCharacters.find(c) != alphaNumericCharacters.end();
+}
+
+
+bool QR::isAlphaNumeric(std::u16string_view s) {
+    return all_of(s.begin(), s.end(), static_cast<bool(*)(char16_t)>(&QR::isAlphaNumeric));
+}
+
+
 uint32_t QR::characterCountBits(uint8_t version, Mode encodeMode) {
     assert(1 <= version && version <= 40);
     if (!(1 <= version && version <= 40)) { return 0; }
@@ -311,7 +321,7 @@ uint32_t QR::characterCountBits(uint8_t version, Mode encodeMode) {
 
 QR::EncodeResult QR::encodeNumeric(std::u16string_view data) {
     assert(data.size() > 0 && data.size() <= numeric_limits<uint16_t>::max());
-    assert(all_of(data.begin(), data.end(), &QR::isNumeric));
+    assert(isNumeric(data));
     
     Data bits;
     size_t i;
@@ -370,7 +380,7 @@ QR::EncodeResult QR::encodeEightbit(std::u16string_view data) {
 }
 
 
-uint8_t QR::minimumVersion(uint32_t numContentBits, ErrorCorrection ec) {
+uint8_t QR::minimumVersion(uint32_t numContentBits, QRGen_ErrorCorrection ec) {
     const uint8_t ecValue = to_underlying(ec);
     
     for (uint8_t version = 1; version <= 40; ++version) {
@@ -380,7 +390,7 @@ uint8_t QR::minimumVersion(uint32_t numContentBits, ErrorCorrection ec) {
 }
 
 
-uint8_t QR::minimumVersion(EncodeResult encodeResult, ErrorCorrection ec) {
+uint8_t QR::minimumVersion(EncodeResult encodeResult, QRGen_ErrorCorrection ec) {
     return minimumVersion(encodeResult.bits.bitCount(), ec);
 }
 

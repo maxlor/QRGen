@@ -24,7 +24,7 @@ public:
     QR() = delete;
     
     static Symbol encode(std::u16string_view data,
-                         QRGen::ErrorCorrection ec = QRGen::ErrorCorrection::M,
+                         QRGen_ErrorCorrection ec = QRGen_EC_M,
                          uint8_t version = 0,
                          uint8_t mask = 255);
     
@@ -39,12 +39,15 @@ private:
         uint16_t characterCount;
     };
     
-    static EncodeResult encodeSegment(std::u16string_view data, QRGen::ErrorCorrection ec);
+    static EncodeResult encodeSegment(std::u16string_view data, QRGen_ErrorCorrection ec);
     static EncodeResult encodeContent(std::u16string_view data);
     /** Add error correction codewords and put everything into the final sequence order. */
-    static std::vector<uint8_t> finalSequence(Data &bits, uint8_t version, QRGen::ErrorCorrection ec);
+    static std::vector<uint8_t> finalSequence(Data &bits, uint8_t version, QRGen_ErrorCorrection ec);
     
     static bool isNumeric(char16_t c);
+    static bool isNumeric(std::u16string_view s);
+    static bool isAlphaNumeric(char16_t c);
+    static bool isAlphaNumeric(std::u16string_view s);
     
     static uint32_t characterCountBits(uint8_t version, Mode encodeMode);
     
@@ -52,8 +55,8 @@ private:
     static EncodeResult encodeAlphanumeric(std::u16string_view data);
     static EncodeResult encodeEightbit(std::u16string_view data);
     
-    static uint8_t minimumVersion(uint32_t numContentData, QRGen::ErrorCorrection ec);
-    static uint8_t minimumVersion(EncodeResult encodeResult, QRGen::ErrorCorrection ec);
+    static uint8_t minimumVersion(uint32_t numContentData, QRGen_ErrorCorrection ec);
+    static uint8_t minimumVersion(EncodeResult encodeResult, QRGen_ErrorCorrection ec);
     
     static std::string toString(Mode mode);
     

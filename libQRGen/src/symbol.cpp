@@ -122,7 +122,7 @@ void Symbol::highlightCodeword(size_t codewordNo, uint32_t highlight) {
 }
 
 
-void Symbol::setData(const std::vector<uint8_t> &data, QRGen::ErrorCorrection ec, uint8_t mask) {
+void Symbol::setData(const std::vector<uint8_t> &data, QRGen_ErrorCorrection ec, uint8_t mask) {
     unsigned int lowestPenalty = numeric_limits<unsigned int>::max();
     uint8_t bestMask = mask;
     if (bestMask == 255) {
@@ -208,7 +208,7 @@ void Symbol::drawFinderPatterns() {
 }
 
 
-void Symbol::drawFormatInformation(uint8_t mask, QRGen::ErrorCorrection ec) {
+void Symbol::drawFormatInformation(uint8_t mask, QRGen_ErrorCorrection ec) {
     // ISO/IEC 18004:2004: see sections 8.9 and appendix C
     // ISO/IEC 18004:2015: see sections 7.9 and appendix C
     // EC information goes into bits 14:13
@@ -220,10 +220,10 @@ void Symbol::drawFormatInformation(uint8_t mask, QRGen::ErrorCorrection ec) {
     static const Polynomial generatorPolynomial(0b101'0011'0111u);
     uint32_t formatBits;
     switch (ec) {
-    case QRGen::ErrorCorrection::L: formatBits = 0b010'0000'0000'0000u; break;
-    case QRGen::ErrorCorrection::M: formatBits = 0b000'0000'0000'0000u; break;
-    case QRGen::ErrorCorrection::Q: formatBits = 0b110'0000'0000'0000u; break;
-    case QRGen::ErrorCorrection::H: formatBits = 0b100'0000'0000'0000u; break;
+    case QRGen_EC_L: formatBits = 0b010'0000'0000'0000u; break;
+    case QRGen_EC_M: formatBits = 0b000'0000'0000'0000u; break;
+    case QRGen_EC_Q: formatBits = 0b110'0000'0000'0000u; break;
+    case QRGen_EC_H: formatBits = 0b100'0000'0000'0000u; break;
     }
     
     // calculate format information bits
@@ -533,16 +533,16 @@ Symbol::Position Symbol::startPosition() const {
 }
 
 
-uint_fast16_t Symbol::formatInformation(uint8_t mask, QRGen::ErrorCorrection ec) {
+uint_fast16_t Symbol::formatInformation(uint8_t mask, QRGen_ErrorCorrection ec) {
     static constexpr uint_fast16_t xorMask{0b10101'00000'10010};
     static const Polynomial divisor{0b1'01001'10111};
 
     uint_fast16_t result;
     switch (ec) {
-    case QRGen::ErrorCorrection::L: result = 0b010'0000'0000'0000; break;
-    case QRGen::ErrorCorrection::M: result = 0b000'0000'0000'0000; break;
-    case QRGen::ErrorCorrection::Q: result = 0b110'0000'0000'0000; break;
-    case QRGen::ErrorCorrection::H: result = 0b100'0000'0000'0000; break;
+    case QRGen_EC_L: result = 0b010'0000'0000'0000; break;
+    case QRGen_EC_M: result = 0b000'0000'0000'0000; break;
+    case QRGen_EC_Q: result = 0b110'0000'0000'0000; break;
+    case QRGen_EC_H: result = 0b100'0000'0000'0000; break;
     }
 
     assert(mask < 8);

@@ -50,7 +50,7 @@ public:
     uint32_t highlight(int x, int y) const;
     
     void highlightCodeword(size_t codewordNo, uint32_t highlight);
-    void setData(const std::vector<uint8_t> &data, QRGen::ErrorCorrection ec, uint8_t mask = 255);
+    void setData(const std::vector<uint8_t> &data, QRGen_ErrorCorrection ec, uint8_t mask = 255);
     
 private:
     struct Position {
@@ -65,7 +65,7 @@ private:
     void drawCodewords(const std::vector<uint8_t> &data, uint8_t mask);
     void drawDarkModule();
     void drawFinderPatterns();
-    void drawFormatInformation(uint8_t mask, QRGen::ErrorCorrection ec);
+    void drawFormatInformation(uint8_t mask, QRGen_ErrorCorrection ec);
     void drawTimingPatterns();
     void drawVersionInformation();
 
@@ -84,7 +84,7 @@ private:
     Position nextPosition(Position position) const;
     Position startPosition() const;
 
-    static uint_fast16_t formatInformation(uint8_t mask, QRGen::ErrorCorrection ec);
+    static uint_fast16_t formatInformation(uint8_t mask, QRGen_ErrorCorrection ec);
     
     const int _version;
     const int _size;

@@ -25,6 +25,7 @@ target_sources(libQRGen
     src/polynomial.h
     src/qr.cpp
     src/qr.h
+    src/qrgen.cpp
     src/symbol.cpp
     src/symbol.h
 )
@@ -35,6 +36,7 @@ target_include_directories(libQRGen PUBLIC
 target_link_libraries(libQRGen
     icuuc
 )
+target_compile_definitions(libQRGen PRIVATE LIBQRGEN_COMPILE)
 
 
 ##### Unit Testing #####

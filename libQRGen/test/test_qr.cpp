@@ -13,7 +13,7 @@
 
 TEST(QR, encodeSegment) {
     // This is the example from Annex I of ISO 18004:2015.
-    QR::EncodeResult result = QR::encodeSegment(u"01234567", QRGen::ErrorCorrection::M);
+    QR::EncodeResult result = QR::encodeSegment(u"01234567", QRGen_EC_M);
     Data expected;
     expected.append(4, 0b0001);
     expected.append(10, 0b0000001000);
